@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 public class AStarTest : MonoBehaviour {
 
-	private const string TEST_FILES_PATH = "Assets/Scripts/TestFiles/AStar";
+	private const string TEST_FILES_PATH = "Assets/Scripts/TestFiles/AStar/";
 
 	private AStarNode.NodeType[,] grid = null;
 	private int startX;
@@ -14,20 +14,57 @@ public class AStarTest : MonoBehaviour {
 	private int goalX;
 	private int goalY;
 
+	private int targetStepCount;
+
+	private string outputStr = "";
+
 	// Use this for initialization
 	void Start () 
 	{
-		ParseFile (TEST_FILES_PATH + "/small_no_obstacles.txt");
+		string[] testFiles = Directory.GetFiles(TEST_FILES_PATH, "*.txt");
 
-		AStar aStar = new AStar();
-		AStarNode node = aStar.CalculatePath(grid, startX, startY, goalX, goalY);
-
-		// Unwind the correct path.
-		while (node != null)
+		outputStr += "Number of tests: " + testFiles.Length;
+		for (int i = 0; i < testFiles.Length; i++)
 		{
-			Debug.Log ("(" + node.X + ", " + node.Y + ")");
-			node = node.parent;
+			outputStr += "\n\nRunning test: " + testFiles[i];
+
+			ParseFile(testFiles[i]);
+			
+			AStar aStar = new AStar();
+			AStarNode node = aStar.CalculatePath(grid, startX, startY, goalX, goalY);
+
+			int steps = 0;
+			string path = "";
+
+			if (node == null)
+			{
+				path += "Not found!";
+				steps = -1;
+			}
+			else
+			{
+				// Unwind the correct path.
+				while (node != null)
+				{
+					path = path.Insert(0, "(" + node.X + ", " + node.Y + ") ");
+					node = node.parent;
+					steps++;
+				}
+				steps--; //First node doesn't count as a step.
+			}
+
+			outputStr += "\n\nPath found: " + path;
+			outputStr += "\nStep count: " + steps + "; supposed to be " + targetStepCount + 
+				" - " + (steps == targetStepCount ? "CORRECT" : "INCORRECT");
+
+			if (steps != targetStepCount)
+			{
+				Debug.LogError(testFiles[i] + " test FAILED!");
+			}
 		}
+
+		outputStr += "\n\nTest finished.";
+		Debug.Log(outputStr);
 	}
 	
 	// Update is called once per frame
@@ -38,6 +75,8 @@ public class AStarTest : MonoBehaviour {
 
 	private void ParseFile (string filePath)
 	{
+		grid = null;
+
 		try
 		{
 			using (StreamReader sr = new StreamReader(filePath))
@@ -47,14 +86,14 @@ public class AStarTest : MonoBehaviour {
 				int row = 0;
 				int numCols = 0;
 				int numRows = 0;
-				while((line = sr.ReadLine()) != null && !line.Equals(""))
+				while((line = sr.ReadLine()) != null)
 				{
-					if (grid == null && line.StartsWith("INPUT "))
+					if (grid == null && line.StartsWith("INPUT"))
 					{
-						int.TryParse( Regex.Match(line,  @"INPUT\s*(\d*)x(\d*)$").Groups[1].Value,
+						int.TryParse( Regex.Match(line,  @"INPUT\s*(\d*)x(\d*)").Groups[1].Value,
 							out numCols);
 
-						int.TryParse(Regex.Match(line, @"^INPUT\s*(\d*)x(\d*)$").Groups[2].Value,
+						int.TryParse(Regex.Match(line, @"INPUT\s*(\d*)x(\d*)").Groups[2].Value,
 							out numRows);
 
 						//Debug.Log("cols = " + numCols + ", rows = " + numRows);
@@ -97,6 +136,11 @@ public class AStarTest : MonoBehaviour {
 						}
 
 						row++;
+					}
+					else if (line.StartsWith("OUTPUT"))
+					{
+						int.TryParse( Regex.Match(line,  @"OUTPUT\s*(\d*)\s").Groups[1].Value,
+						             out targetStepCount);
 					}
 				}
 			}

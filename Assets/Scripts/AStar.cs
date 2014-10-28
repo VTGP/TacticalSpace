@@ -5,6 +5,7 @@ using System;
 public class AStar 
 {
 	private const int MOVE_COST = 10;
+	//private const int BLOCK_COST = 100000;
 
 	private HashSet<AStarNode> openList;
 	private HashSet<AStarNode> closedList;
@@ -64,26 +65,6 @@ public class AStar
 			if (curNode.Y + 1 < nodes.GetLength(1))
 				if (ProcessAdjacentNode(nodes[curNode.X, curNode.Y + 1], curNode))
 					return nodes[curNode.X, curNode.Y + 1];
-
-			// Left
-			/*openList.Add(nodes[curPosX - 1, curPosY]);
-			nodes[curPosX - 1, curPosY].parent = curNode;
-			nodes[curPosX - 1, curPosY].movementCost = curNode.movementCost + MOVE_COST;
-
-			// Up
-			openList.Add(nodes[curPosX, curPosY - 1]);
-			nodes[curPosX, curPosY - 1].parent = curNode;
-			nodes[curPosX, curPosY - 1].movementCost = curNode.movementCost + MOVE_COST;
-
-			// Right
-			openList.Add(nodes[curPosX + 1, curPosY]);
-			nodes[curPosX + 1, curPosY].parent = curNode;
-			nodes[curPosX + 1, curPosY].movementCost = curNode.movementCost + MOVE_COST;
-
-			// Down
-			openList.Add(nodes[curPosX, curPosY + 1]);
-			nodes[curPosX, curPosY + 1].parent = curNode;
-			nodes[curPosX, curPosY + 1].movementCost = curNode.movementCost + MOVE_COST;*/
 
 
 			AStarNode minTotalCostNode = null;
