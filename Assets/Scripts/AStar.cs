@@ -37,10 +37,7 @@ public class AStar
 
 		this.CreateNodesAndCalculateHeuristicValues();
 
-		int curPosX = startX;
-		int curPosY = startY;
-
-		AStarNode curNode = nodes[curPosX, curPosY];
+		AStarNode curNode = nodes[startX, startY];
 		openList.Add(curNode);
 
 		while (openList.Count > 0)
@@ -49,24 +46,24 @@ public class AStar
 			closedList.Add(curNode);
 
 			// Left
-			if (curPosX - 1 >= 0)
-				if (ProcessAdjacentNode(nodes[curPosX - 1, curPosY], curNode))
-					return nodes[curPosX - 1, curPosY];
+			if (curNode.X - 1 >= 0)
+				if (ProcessAdjacentNode(nodes[curNode.X - 1, curNode.Y], curNode))
+					return nodes[curNode.X - 1, curNode.Y];
 
 			// Up
-			if (curPosY - 1 >= 0)
-				if (ProcessAdjacentNode(nodes[curPosX, curPosY - 1], curNode))
-					return nodes[curPosX, curPosY - 1];
+			if (curNode.Y - 1 >= 0)
+				if (ProcessAdjacentNode(nodes[curNode.X, curNode.Y - 1], curNode))
+					return nodes[curNode.X, curNode.Y - 1];
 
 			// Right
-			if (curPosX + 1 < nodes.GetLength(0))
-				if (ProcessAdjacentNode(nodes[curPosX + 1, curPosY], curNode))
-					return nodes[curPosX + 1, curPosY];
+			if (curNode.X + 1 < nodes.GetLength(0))
+				if (ProcessAdjacentNode(nodes[curNode.X + 1, curNode.Y], curNode))
+					return nodes[curNode.X + 1, curNode.Y];
 
 			// Down
-			if (curPosY + 1 < nodes.GetLength(1))
-				if (ProcessAdjacentNode(nodes[curPosX, curPosY + 1], curNode))
-					return nodes[curPosX, curPosY + 1];
+			if (curNode.Y + 1 < nodes.GetLength(1))
+				if (ProcessAdjacentNode(nodes[curNode.X, curNode.Y + 1], curNode))
+					return nodes[curNode.X, curNode.Y + 1];
 
 			// Left
 			/*openList.Add(nodes[curPosX - 1, curPosY]);
