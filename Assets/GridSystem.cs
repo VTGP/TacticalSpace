@@ -3,10 +3,10 @@ using System.Collections;
 
 public class GridSystem : MonoBehaviour {
 	public GameObject plane;
-	public int width = 10;
-	public int length = 10;
+	public const int COLS = 10;
+	public const int ROWS = 10;
 
-	private GameObject[,] grid = new GameObject[10,10];
+	private GameObject[,] grid = new GameObject[COLS, ROWS];
 
 	void OnGUI()
 	{
@@ -17,9 +17,9 @@ public class GridSystem : MonoBehaviour {
 	}
 
 	void Start () {
-		for (int x=0; x < width; x++) 
+		for (int x=0; x < COLS; x++) 
 		{
-			for (int z=0; z < length; z++)
+			for (int z=0; z < ROWS; z++)
 			{
 				GameObject gridPlane = (GameObject)Instantiate(plane);
 				gridPlane.transform.position = new Vector3(gridPlane.transform.position.x + x, 

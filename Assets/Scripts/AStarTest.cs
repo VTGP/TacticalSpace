@@ -139,7 +139,7 @@ public class AStarTest : MonoBehaviour {
 					}
 					else if (line.StartsWith("OUTPUT"))
 					{
-						int.TryParse( Regex.Match(line,  @"OUTPUT\s*(\d*)\s").Groups[1].Value,
+						int.TryParse( Regex.Match(line,  @"OUTPUT\s*(-?\d*)\s").Groups[1].Value,
 						             out targetStepCount);
 					}
 				}
