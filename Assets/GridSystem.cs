@@ -5,6 +5,7 @@ public class GridSystem : MonoBehaviour {
 	public GameObject plane;
 	public const int COLS = 10;
 	public const int ROWS = 10;
+	public const int HEIGHT = 10;
 
 	private GameObject[,] grid = new GameObject[COLS, ROWS];
 
@@ -21,10 +22,13 @@ public class GridSystem : MonoBehaviour {
 		{
 			for (int z=0; z < ROWS; z++)
 			{
+				for (int y=0; y < HEIGHT; y++)
+				{
 				GameObject gridPlane = (GameObject)Instantiate(plane);
 				gridPlane.transform.position = new Vector3(gridPlane.transform.position.x + x, 
-					gridPlane.transform.position.y, gridPlane.transform.position.z + z);
+					gridPlane.transform.position.y + y, gridPlane.transform.position.z + z);
 				grid[x,z] = gridPlane;
+				}
 			}
 		
 		}
