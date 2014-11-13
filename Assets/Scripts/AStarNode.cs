@@ -5,6 +5,7 @@ public class AStarNode
 	public enum NodeType
 	{
 		PATH,
+		EMPTY,
 		BLOCK,
 		START,
 		GOAL
@@ -17,14 +18,16 @@ public class AStarNode
 
 	private int x;
 	private int y;
+	private int z;
 
 	public AStarNode parent = null;
 
-	public AStarNode (NodeType type, int x, int y, int heuristicCost)
+	public AStarNode (NodeType type, int x, int y, int z, int heuristicCost)
 	{
 		this.type = type;
 		this.x = x;
 		this.y = y;
+		this.z = z;
 		this.heuristicCost = heuristicCost;
 	}
 
@@ -57,5 +60,10 @@ public class AStarNode
 	public int Y
 	{
 		get { return this.y; }
+	}
+
+	public int Z
+	{
+		get { return this.z; }
 	}
 }

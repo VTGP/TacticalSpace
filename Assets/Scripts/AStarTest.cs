@@ -6,13 +6,11 @@ using System.Text.RegularExpressions;
 
 public class AStarTest : MonoBehaviour {
 
-	private const string TEST_FILES_PATH = "Assets/Scripts/TestFiles/AStar/";
+	private const string TEST_FILES_PATH = "Assets/Scripts/TestFiles/AStar/3D/";
 
-	private AStarNode.NodeType[,] grid = null;
-	private int startX;
-	private int startY;
-	private int goalX;
-	private int goalY;
+	private AStarNode.NodeType[,,] grid = null;
+	private Vector3i startPos;
+	private Vector3i goalPos;
 
 	private int targetStepCount;
 
@@ -31,9 +29,9 @@ public class AStarTest : MonoBehaviour {
 			ParseFile(testFiles[i]);
 			
 			AStar aStar = new AStar();
-			AStarNode node = aStar.CalculatePath(grid, startX, startY, goalX, goalY);
+			AStarNode node = aStar.CalculatePath(grid, startPos, goalPos);
 
-			int steps = 0;
+			int steps = -1; //First node doesn't count as a step.
 			string path = "";
 
 			if (node == null)
@@ -46,11 +44,18 @@ public class AStarTest : MonoBehaviour {
 				// Unwind the correct path.
 				while (node != null)
 				{
-					path = path.Insert(0, "(" + node.X + ", " + node.Y + ") ");
+					if (node.Type != AStarNode.NodeType.EMPTY)
+					{
+						path = path.Insert(0, "(" + node.X + ", " + node.Y + ", " + node.Z + ") ");
+						steps++;
+					}
+					else
+					{
+						path = path.Insert(0, "<" + node.X + ", " + node.Y + ", " + node.Z + "> ");
+					}
+
 					node = node.parent;
-					steps++;
 				}
-				steps--; //First node doesn't count as a step.
 			}
 
 			outputStr += "\n\nPath found: " + path;
@@ -83,59 +88,76 @@ public class AStarTest : MonoBehaviour {
 			{
 				string line;
 
-				int row = 0;
-				int numCols = 0;
-				int numRows = 0;
+				int y = 0;
+				int z = 0;
+
+				int lengthX = 0;
+				int lengthY = 0;
+				int lengthZ = 0;
 				while((line = sr.ReadLine()) != null)
 				{
 					if (grid == null && line.StartsWith("INPUT"))
 					{
-						int.TryParse( Regex.Match(line,  @"INPUT\s*(\d*)x(\d*)").Groups[1].Value,
-							out numCols);
+						int.TryParse( Regex.Match(line,  @"INPUT\s*(\d*)x(\d*)x(\d*)").Groups[1].Value,
+							out lengthX);
 
-						int.TryParse(Regex.Match(line, @"INPUT\s*(\d*)x(\d*)").Groups[2].Value,
-							out numRows);
+						int.TryParse(Regex.Match(line, @"INPUT\s*(\d*)x(\d*)x(\d*)").Groups[2].Value,
+							out lengthY);
 
-						//Debug.Log("cols = " + numCols + ", rows = " + numRows);
-						grid = new AStarNode.NodeType[numCols, numRows];
+						int.TryParse(Regex.Match(line, @"INPUT\s*(\d*)x(\d*)x(\d*)").Groups[3].Value,
+						    out lengthZ);
+
+						grid = new AStarNode.NodeType[lengthX, lengthY, lengthZ];
 					}
-					else if (grid != null && row < numRows)
+					else if (grid != null && z < lengthZ)
 					{
+						if (line.Trim().Equals(""))
+						{
+							y = 0;
+							z++;
+							continue;
+						}
+
 						String[] nodesRow = line.Split(new string[] { " " }, StringSplitOptions.None);
 
-						for (int col = 0; col < numCols; col++)
+						for (int x = 0; x < lengthX; x++)
 						{
-							switch (nodesRow[col][0])
+							switch (nodesRow[x][0])
 							{
 							case '0':
-								grid[col, row] = AStarNode.NodeType.PATH;
+								grid[x, y, z] = AStarNode.NodeType.PATH;
 								break;
 
 							case 'B':
 							case 'b':
-								grid[col, row] = AStarNode.NodeType.BLOCK;
+							case 'x':
+							case 'X':
+								grid[x, y, z] = AStarNode.NodeType.BLOCK;
+								break;
+
+							case '-':
+								grid[x, y, z] = AStarNode.NodeType.EMPTY;
 								break;
 
 							case 'S':
 							case 's':
-								startX = col;
-								startY = row;
-								grid[col, row] = AStarNode.NodeType.START;
+								startPos = new Vector3i(x, y, z);
+								grid[x, y, z] = AStarNode.NodeType.START;
 								break;
 
 							case 'G':
 							case 'g':
-								goalX = col;
-								goalY = row;
-								grid[col, row] = AStarNode.NodeType.GOAL;
+								goalPos = new Vector3i(x, y, z);
+								grid[x, y, z] = AStarNode.NodeType.GOAL;
 								break;
 
 							default:
+								Debug.LogError("Node token not recognized: " + nodesRow[x][0]);
 								break;
 							}
 						}
 
-						row++;
+						y++;
 					}
 					else if (line.StartsWith("OUTPUT"))
 					{
