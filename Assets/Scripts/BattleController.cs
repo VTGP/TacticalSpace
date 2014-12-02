@@ -82,7 +82,7 @@ public class BattleController : MonoBehaviour
 				                    new Vector3 (1f, 1f, 1f),
 				                    0.5f);
 
-				Debug.Log("(" + path.X + ", " + path.Y + ", " + path.Z + ")");
+				//Debug.Log("(" + path.X + ", " + path.Y + ", " + path.Z + ")");
 			}
 			
 			path = path.parent;
