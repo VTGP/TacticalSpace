@@ -4,8 +4,8 @@ public class AStarNode
 {
 	public enum NodeType
 	{
-		PATH,
 		EMPTY,
+		PATH,
 		BLOCK,
 		START,
 		GOAL

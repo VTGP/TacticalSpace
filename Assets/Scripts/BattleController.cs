@@ -8,55 +8,66 @@ public class BattleController : MonoBehaviour
 	public int lengthY;
 	public int lengthZ;
 
-	private GameObject highlightPlane;
+	//private GameObject highlightPlane;
+	private GameObject highlightCube;
 	private AStarNode path;
 	private AStarNode.NodeType[,,] grid;
 
 	// Use this for initialization
 	void Start () 
 	{
-		highlightPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+		/*highlightPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
 		highlightPlane.transform.localScale = new Vector3 (0.1f, 1.0f, 0.1f);
 		highlightPlane.renderer.material.shader = Shader.Find( "Transparent/Diffuse" );
-		highlightPlane.renderer.material.color = new Color (1.0f, 0.15f, 0.15f, 0.0f);
+		highlightPlane.renderer.material.color = new Color (1.0f, 0.15f, 0.15f, 0.0f);*/
+
+		highlightCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		highlightCube.transform.localScale = new Vector3 (1f, 1f, 1f);
+		highlightCube.renderer.material.shader = Shader.Find( "Transparent/Diffuse" );
+		highlightCube.renderer.material.color = new Color (1.0f, 0.15f, 0.15f, 0.0f);
+
+		grid = new AStarNode.NodeType[lengthX, lengthY, lengthZ];
 
 		// Grab the level layout from the scene.
-		grid = new AStarNode.NodeType[lengthX + 2, lengthY + 2, lengthZ + 2];
+		GameObject[] cubes = GameObject.FindGameObjectsWithTag("Ground");
 
-		for (int x = 0; x < grid.GetLength(0); x++)
+		foreach (GameObject cube in cubes)
 		{
-			for (int y = 0; y < grid.GetLength(1); y++)
-			{
-				for (int z = 0; z < grid.GetLength(2); z++)
-				{
-					if (x == 0 && y == 0 ||
-					    x == 0 && z == 0 ||
-					    x == 0 && y == grid.GetLength(1) - 1 ||
-					    x == 0 && z == grid.GetLength(2) - 1 ||
-					    y == 0 && z == 0 ||
-					    y == 0 && x == grid.GetLength(0) - 1 ||
-					    y == 0 && z == grid.GetLength(2) - 1 ||
-					    z == 0 && y == grid.GetLength(1) - 1 ||
-					    z == 0 && x == grid.GetLength(0) - 1 ||
-					    y == grid.GetLength(1) - 1 && x == grid.GetLength(0) - 1 ||
-					    y == grid.GetLength(1) - 1 && z == grid.GetLength(2) - 1 ||
-					    z == grid.GetLength(2) - 1 && x == grid.GetLength(0) - 1)
-					{
-						grid[x, y, z] = AStarNode.NodeType.EMPTY;
-					}
-					else
-					{
-						grid[x, y, z] = AStarNode.NodeType.PATH;
-					}
-				}
-			}
+			Vector3i pos = new Vector3i(cube.transform.position);
+
+			// Block itself
+			grid[pos.x, pos.y, pos.z] = AStarNode.NodeType.BLOCK;
+
+			// Left
+			if (grid[pos.x - 1, pos.y, pos.z] != AStarNode.NodeType.BLOCK)
+				grid[pos.x - 1, pos.y, pos.z] = AStarNode.NodeType.PATH;
+
+			// Top
+			if (grid[pos.x, pos.y - 1, pos.z] != AStarNode.NodeType.BLOCK)
+				grid[pos.x, pos.y - 1, pos.z] = AStarNode.NodeType.PATH;
+
+			// Right
+			if (grid[pos.x + 1, pos.y, pos.z] != AStarNode.NodeType.BLOCK)
+				grid[pos.x + 1, pos.y, pos.z] = AStarNode.NodeType.PATH;
+
+			// Bottom
+			if (grid[pos.x, pos.y + 1, pos.z] != AStarNode.NodeType.BLOCK)
+				grid[pos.x, pos.y + 1, pos.z] = AStarNode.NodeType.PATH;
+
+			// Forward
+			if (grid[pos.x, pos.y, pos.z + 1] != AStarNode.NodeType.BLOCK)
+				grid[pos.x, pos.y, pos.z + 1] = AStarNode.NodeType.PATH;
+
+			// Backward
+			if (grid[pos.x, pos.y, pos.z - 1] != AStarNode.NodeType.BLOCK)
+				grid[pos.x, pos.y, pos.z - 1] = AStarNode.NodeType.PATH;
 		}
 
 		GameObject start = GameObject.FindWithTag("Start");
-		Vector3i startPos = new Vector3i(start.transform.position) +  new Vector3i(1, 1, 1);
+		Vector3i startPos = new Vector3i(start.transform.position);
 
 		GameObject goal = GameObject.FindWithTag("Goal");
-		Vector3i goalPos = new Vector3i(goal.transform.position) + new Vector3i(1, 1, 1);
+		Vector3i goalPos = new Vector3i(goal.transform.position);
 
 		// Run the A* algorithm.
 		AStar aStar = new AStar();
@@ -67,10 +78,11 @@ public class BattleController : MonoBehaviour
 		{
 			if (path.Type != AStarNode.NodeType.EMPTY)
 			{
-				GameObject highlight = CreateHighlightPlane(new Vector3(path.X - 1, path.Y - 1, path.Z - 1),
-				                                            new Vector3 (0.1f, 1.0f, 0.1f),
-				                                            0.5f);
-				Debug.Log("(" + (path.X - 1) + ", " + (path.Y - 1) + ", " + (path.Z - 1) + ")");
+				CreateHighlightCube(new Vector3(path.X, path.Y, path.Z),
+				                    new Vector3 (1f, 1f, 1f),
+				                    0.5f);
+
+				//Debug.Log("(" + path.X + ", " + path.Y + ", " + path.Z + ")");
 			}
 			
 			path = path.parent;
@@ -83,13 +95,59 @@ public class BattleController : MonoBehaviour
 
 	}
 
-	private GameObject CreateHighlightPlane(Vector3 position, Vector3 localScale, float alpha)
+	private GameObject CreateHighlightCube(Vector3 pos, Vector3 localScale, float alpha)
+	{
+		GameObject newCube = (GameObject)Instantiate(highlightCube);
+		newCube.transform.position = pos;
+		//newCube.transform.localEulerAngles = rotation;
+		newCube.transform.localScale = localScale;
+		Color color = newCube.renderer.material.color;
+		color.a = alpha;
+		newCube.renderer.material.color = color;		
+		
+		return newCube;
+	}
+
+	/*private GameObject CreateHighlightPlane(Vector3 pos, Vector3 localScale, float alpha)
 	{
 		Vector3 rotation = new Vector3(transform.localEulerAngles.x,
 		                               transform.localEulerAngles.y,
 		                               transform.localEulerAngles.z);
 
-		if (position.y == lengthY)
+		// Look for an adjacent block to set orientation.
+		// TODO: There can be more than one adjacent block. How do we handle orientation with A*?
+
+		// Left
+		if (pos.x - 1 >= 0 &&
+			grid[pos.x - 1, pos.y, pos.z] != AStarNode.NodeType.BLOCK)
+			grid[pos.x - 1, pos.y, pos.z] = AStarNode.NodeType.PATH;
+		
+		// Top
+		if (pos.y - 1 >= 0 &&
+			grid[pos.x, pos.y - 1, pos.z] != AStarNode.NodeType.BLOCK)
+			grid[pos.x, pos.y - 1, pos.z] = AStarNode.NodeType.PATH;
+		
+		// Right
+		if (pos.x + 1 < lengthX &&
+			grid[pos.x + 1, pos.y, pos.z] != AStarNode.NodeType.BLOCK)
+			grid[pos.x + 1, pos.y, pos.z] = AStarNode.NodeType.PATH;
+		
+		// Bottom
+		if (pos.y + 1 < lengthY &&
+			grid[pos.x, pos.y + 1, pos.z] != AStarNode.NodeType.BLOCK)
+			grid[pos.x, pos.y + 1, pos.z] = AStarNode.NodeType.PATH;
+		
+		// Forward
+		if (pos.z + 1 < lengthZ &&
+		    grid[pos.x, pos.y, pos.z + 1] != AStarNode.NodeType.BLOCK)
+			grid[pos.x, pos.y, pos.z + 1] = AStarNode.NodeType.PATH;
+		
+		// Backward
+		if (pos.z - 1 >= 0 &&
+			grid[pos.x, pos.y, pos.z - 1] != AStarNode.NodeType.BLOCK)
+			grid[pos.x, pos.y, pos.z - 1] = AStarNode.NodeType.PATH;
+
+		/*if (position.y == lengthY)
 		{
 			position.y -= 0.45f;
 		}
@@ -131,5 +189,5 @@ public class BattleController : MonoBehaviour
 
 		
 		return newPlane;
-	}
+	}*/
 }
