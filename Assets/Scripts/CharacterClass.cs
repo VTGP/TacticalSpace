@@ -4,7 +4,7 @@ using System.Collections;
 public class CharacterClass : MonoBehaviour {
 
 	//Character types:
-	public enum unitType{
+	public enum UnitType{
 		//insert different unit types here
 		//right now, just contains three basic types
 		SOLDIER,//futuristic warrior
@@ -13,22 +13,22 @@ public class CharacterClass : MonoBehaviour {
 	};
 
 	//Character Stats:
-	public unitType character;//keeps track of the character type
+	public UnitType unitType;//keeps track of the character type
 
-	public int maxHealth;//maximum hitpoints
-	public int curHealth;//current hitpoints
+	private int maxHealth;//maximum hitpoints
+	private int curHealth;//current hitpoints
 
-	public int maxEnergy;//maximum energy
-	public int curEnergy;//current energy
+	private int maxEnergy;//maximum energy
+	private int curEnergy;//current energy
 
-	public int level;//current character level
-	public int maxExperience;//experience needed to level up
-	public int curExperience;//current experience
+	private int level;//current character level
+	private int maxExperience;//experience needed to level up
+	private int curExperience;//current experience
 
-	public int baseDamage;
-	public int attackRange;
+	private int baseDamage;
+	private int attackRange;
 
-	public int moveRange;//the amount of space that the character can move in a turn
+	private int moveRange;//the amount of space that the character can move in a turn
 
 
 	//Character Inventory:
@@ -51,13 +51,10 @@ public class CharacterClass : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		//sets the initial stats for a character
-		int type = 0;//used to determine the character type, currently defaults to soldier
 		//change int type later to recieve input from some source
 
-		if (type == 0) {
+		if (unitType == UnitType.SOLDIER) {
 			//Soldier class stats:
-			character = unitType.SOLDIER;
 			maxHealth = 150;
 			curHealth = 150;
 			maxEnergy = 5;
@@ -65,9 +62,8 @@ public class CharacterClass : MonoBehaviour {
 			baseDamage = 40;
 			attackRange = 1;
 			moveRange = 4;
-		} else if (type == 1) {
+		} else if (unitType == UnitType.SCOUT) {
 			//Scout class stats:
-			character = unitType.SCOUT;
 			maxHealth = 100;
 			curHealth = 100;
 			maxEnergy = 40;
@@ -77,7 +73,6 @@ public class CharacterClass : MonoBehaviour {
 			moveRange = 6;
 		} else {
 			//Scout class stats:
-			character = unitType.ENGINEER;
 			maxHealth = 120;
 			curHealth = 120;
 			maxEnergy = 100;
